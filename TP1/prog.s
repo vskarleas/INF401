@@ -1,4 +1,6 @@
 	.cpu arm7tdmi
+	.arch armv4t
+	.fpu softvfp
 	.eabi_attribute 20, 1
 	.eabi_attribute 21, 1
 	.eabi_attribute 23, 3
@@ -26,10 +28,8 @@ CC:
 	.text
 	.align	2
 	.global	main
-	.arch armv4t
 	.syntax unified
 	.arm
-	.fpu softvfp
 	.type	main, %function
 main:
 	@ Function supports interworking.
@@ -58,4 +58,4 @@ main:
 	.word	NN
 	.word	333
 	.size	main, .-main
-	.ident	"GCC: (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 20191025 (release) [ARM/arm-9-branch revision 277599]"
+	.ident	"GCC: (GNU) 12.2.0"
