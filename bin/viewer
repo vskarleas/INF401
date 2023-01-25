@@ -1,0 +1,2 @@
+#!/bin/bash
+java -jar /Public/401_INF_Public/bin/Viewer.jar $*

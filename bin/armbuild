@@ -1,0 +1,4 @@
+#!/bin/bash
+source /Public/401_INF_Public/set_prefix.sh
+
+${GNUARMDIR}/bin/${PREFIX}gcc -g  -Wa,--gdwarf2 -o $@
