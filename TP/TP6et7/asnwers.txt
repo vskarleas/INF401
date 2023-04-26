@@ -1,0 +1,13 @@
+# Exercise 5.3.1
+1) La formule est 4*x*y + 4*y ou encore 4*(x*y + y)
+2)  ldr r3, adr_table
+    ldr r0, LD_x
+    ldrb r0, [r0]
+    ldr r1,  LD_y
+    ldrb r1,[r1]
+    mov r4, #4
+    mul r3, r0, r1
+    mul r5, r3, r4
+    add r3, r3, r5
+    mul r5, r1, r4
+    add r3, r3, r5
