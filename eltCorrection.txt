@@ -1,0 +1,201 @@
+Éléments de correction
+
+1) Question de cours
+a), b), pistes de réponses :
+* RAM (dont découpage en .data, .bss, .rodata, .text (pour les relais, et le programme qui comporte des informations et qui est une information), pile & tas, ROM)
+* dans le processeur : Registres (dont registre d'état CPSR pour Z,N,C,V), Cache (hors de l'architecture de von Neumann), état de l'automate de contrôle
+* dans les périphériques (périphériques de stockage et de communication)
+
+2) Fonction F91 de McCarthy
+c)
+l.10:
+  ldr r1, ptr_m
+  bl ecrChaine
+l.11:
+  ldr r1, ptr_x
+  bl lire32
+l.13:
+  ldr r1, ptr_y
+  ldr r1, [r1]
+  bl ecrNDecimal32
+  
+d)
+l.12:
+  ldr r1, ptr_x
+  ldr r1,[r1]
+  push {r1}
+  push {r0} @ place pour le résultat, on peut aussi juste déplacer sp (sub sp, sp, #4)
+  bl f91
+  pop {r0}
+  pop {r1} @ récupération place paramètre, on peut aussi juste déplacer sp (add sp, sp, #4)
+  ldr r1,ptr_y
+  str r0, [r1]
+  
+Dessin de la pile :
+
+      r2
+      r1
+      r0
+  -4  loc
+fp=>  fp
+      lr
+  +8  res
+  +12 x (n) 
+ 
+e) 
+l.2:
+  ldr r1,[fp,#12]
+  sub r1,r1,#10
+  str r1,[fp,#-4]
+  
+f)
+l.1:
+  ldr r1,[fp,#12]
+  cmp r1,#100
+  ble l.4
+l.2: @ ici ligne 2
+l.3:
+  b l.6
+l.4: @ ici ligne 4
+l.5: @ ici ligne 5
+l.6: 
+  nop
+
+g)
+prologue:
+  push {lr}
+  push {fp}
+  mov fp,sp
+  push {r0} place pour loc, on peut aussi juste déplacer sp (sub sp, sp, #4)
+  push {r0}
+  push {r1}
+  push {r2}
+
+... @ début du corps de la fonction
+  
+l.7:  
+  ldr r0,[fp,#-4]
+  str r0,[fp,#8]
+epilogue:
+  pop {r2}
+  pop {r1}
+  pop {r0}
+  add sp, sp, #4
+  pop {fp}
+  pop {lr}
+  bx lr
+
+h)
+l.4:
+  ldr r0,[fp,#12]
+  add r0, r0, #11
+  push {r0}
+  push {r0}  @ place pour le résultat, on peut aussi juste déplacer sp (sub sp, sp, #4)
+  bl f91
+  pop {r0}
+  str r0,[fp,#-4]
+  pop {r0}  # récupère la place de l'argument, on peut aussi juste déplacer sp (ou ne rien faire et ne pas faire les 2 instructions suivantes) 
+l.5:
+  ldr r0,[fp,#-4]
+  push {r0}
+  push {r0}  @ place pour le résultat, on peut aussi juste déplacer sp (sub sp, sp, #4)
+  bl f91
+  pop {r0}
+  str r0,[fp,#-4]
+  pop {r0}  # récupère la place de l'argument, on peut aussi juste déplacer sp (add sp, sp, #4)
+
+
+3) Automate, processeur
+
+Traduction en ASM :
+l.0:
+  jmp @l.4
+l.2:
+  ld #2
+l.4:
+  clr
+l.5:
+  add @l.15
+l.7:
+  jmp @l.5
+l.9:
+  clr
+l.10:
+  .val 0
+l.11:
+  .val 3
+l.12:
+  .val 6
+l.13:
+  .val 9
+l.14:
+  .val 12
+l.15:
+  .val 15
+
+  
+i)
+t=1	jmp @l.4
+t=2 clr         acc <= 0
+t=3 add @l.15   acc <= 15
+t=4 jmp @l.5
+t=6 add @l.15   acc <= 14 (30)
+t=7 jmp @l.5
+
+j)
+t=1 pc<=0
+t=2 ma<=0
+t=3 md<=4
+t=4 rinst<=4
+t=5 pc<=1
+t=6 ma<=1
+t=7 pc<=2
+t=8 md<=4
+t=9 pc<=4
+t=10 ma<=4
+t=11 md<=1 
+t=12 rinst<=1
+t=13 pc<=5
+t=14 acc<=0
+t=15 ma<=5
+
+k) 
+pour swp, on utilise la branche de l'addition, mais en dernière micro-action on fait une alternative 
+(au lieu de acc<= acc+md ssi rinst=5), pour rinst=6 :
+tmp <= acc
+acc <= md
+md <= tmp
+Mem[ma] <= md
+
+pour sne, on ajoute une condition pour utilise l'alternative précédente : rins=7 et acc<>0 (on peut la mettre plus tôt)
+et une alternative pour rins=7 et acc==0 qui boucle sur le début de la boucle fetch (on peut la mettre plus tôt, mais attention à ne pas la mettre trop tôt, il faut faire les pc deux pc <= pc+1 de la boucle)
+
+Bonus : la fonction f91 renvoie 91 d'où son nom (en savoir plus : https://fr.wikipedia.org/wiki/Fonction_91_de_McCarthy).
+
+ 
+Commentaires libres
+Moyenne et médiane à 9, min 0, max 20, écart-type 4.5
+* nb non négligeable de 0, 2 et 3.
+* pas autant de 17, 18 et 20
+* le reste est une gaussienne plutôt régulière, centrée en 10 
+* n.b. : répartition irrégulière des notes entre 14 (-) et 15 (+)
+* la moyenne des notes entre 4 et 16 (i.e. : hors les extrêmes) est à 10.1
+
+Erreurs (habituelles)
+* Confusion entre mov (entre registres) et ldr (entre registre et mémoire)
+* Confusion entre ldr (lecture à partir de la mémoire) et str (écriture en mémoire)
+* Confusion entre les adresses et les valeurs (ex. : lors des saisies [donner l'adresse, ldr R1, LD_D] et les affichages [donner la valeur, ldr R1, LD_D puis ldr R1, [R1]])
+* L'inverse de "<" n'est pas ">" mais ">="
+* Confusion entre b et bl
+* Confusion entre convention d'appel par registre et par la pile
+* Confusion entre définition de fonction (avec prologue et épilogue) et appel de fonction (avec préparation de l'appel, bl f, puis finalisation)
+* Non respect des méthodes de traduction systématique
+
+Autres (erreurs)
+* La question de cours a trop souvent été ignorée
+* Le sujet prévoyait une traduction progressive (affichage/saisie, appel principal, affectation, conditionnelle, prologue, épilogue, appel récursif), dans le désordre des lignes du code qui s'appuyait sur les motifs de traduction ; une traduction globale a parfois été proposée, oubliant certains éléments à traduire (ex. : écriture des résultats de fonction) ou pré-supposant l'emploi de registres particuliers (ex. : R0 pour x, loc ou n), ce qui n'était pas le cas (ex. : x, y  devaient être pris/remis dans la zone de données ; n, loc devaient être pris/remis dans la pile) 
+* Décompte de la place prise sur la pile au retour des appels récursifs, paramètre+résultat = 8 octets, mais 12 octets libérés
+* Les ajouts, soustractions et comparaison avec des constantes (-10, +11, >100) transformées en comparaison à 1 ou 0 et test d'égalité
+* l'exécution du programme au niveau assembleur (Ex. 3) a trop souvent été ignorée ou confondue avec une exécution des instructions assembleurs indépendante de l'exécution du programme globale
+* rappel : sur 4 bits, les valeurs sont limitées à 15, l'exécution du programme (ex. 3) ne donnait donc pas  0, 15, 30, 45, ... mais 0, 15, 14, 13, ...
+

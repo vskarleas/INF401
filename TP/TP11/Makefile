@@ -1,5 +1,5 @@
-CC=/opt/gnu/arm/bin/arm-eabi-gcc
-AS=/opt/gnu/arm/bin/arm-eabi-gcc
+CC=/opt/homebrew/bin/arm-none-eabi-as
+AS=/opt/homebrew/bin/arm-none-eabi-as
 
 CFLAGS=-Wall -gdwarf-2 
 
